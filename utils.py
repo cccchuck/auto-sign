@@ -6,13 +6,16 @@ import requests
 import json
 import hashlib
 
+with open('conf.json', 'r') as f:
+    config = json.load(f)
+    pushURL = config['push']['URL']
+
 
 def getTime():
     return time.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def sendMsg(content: str):
-    URL = 'https://open.feishu.cn/open-apis/bot/v2/hook/935f3e40-9063-42c7-b4b6-0378a8ac3341'
     headers = {
         'Content-Type': 'application/json'
     }
@@ -22,7 +25,7 @@ def sendMsg(content: str):
             "text": content
         }
     }
-    requests.post(URL, headers=headers, data=json.dumps(data))
+    requests.post(pushURL, headers=headers, data=json.dumps(data))
 
 
 class Log:
