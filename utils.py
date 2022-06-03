@@ -57,6 +57,10 @@ class InSchool:
 
         self.account = account
 
+        self.id = None
+
+        self.signId = None
+
         self.username = account.get('username')
 
         self.password = account.get('password')
@@ -92,6 +96,25 @@ class InSchool:
         else:
             self.log.log(f'username: { self.getUsername() } request failed')
 
+    def getSignId(self):
+        self.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+        self.headers['JWSESSION'] = self.JWSESSION
+        self.headers['Host'] = 'student.wozaixiaoyuan.com'
+
+        URL = 'https://student.wozaixiaoyuan.com/sign/getSignMessage.json'
+
+        data = {
+            'page': 1,
+            'size': 5,
+        }
+
+        res = self.session.post(
+            URL, headers=self.headers, data=urlencode(data))
+
+        self.handle(res, 'Get Sign Id')
+
+        return None
+
     def signIn(self):
         self.headers['Content-Type'] = 'application/json'
         self.headers['JWSESSION'] = self.JWSESSION
@@ -100,8 +123,8 @@ class InSchool:
         URL = 'https://student.wozaixiaoyuan.com/sign/doSign.json'
 
         data = {
-            'id': self.account.get('id'),
-            'signId': self.account.get('signId'),
+            'id': self.id,
+            'signId': self.signId,
             'latitude': self.account.get('latitude'),
             'longitude': self.account.get('longitude'),
             'country': self.account.get('country'),
@@ -158,6 +181,10 @@ class InSchool:
                 self.log.log(
                     f'username: { self.getUsername() } { type } Success')
                 sendMsg(f'username: { self.getUsername() } { type } Success')
+
+                if type == 'Get Sign Id':
+                    self.id = json.loads(res.text).get('data')[0].get('logId')
+                    self.signId = json.loads(res.text).get('data')[0].get('id')
             else:
                 if code == -10:
                     self.log.log('Log in expired')
@@ -177,18 +204,9 @@ class InSchool:
     def work(self):
         self.log.log(f'username: { self.getUsername() } working...')
         try:
+            self.getSignId()
             self.signIn()
             self.signHealth()
         except Exception as e:
             self.log.log(e.args[0])
         return None
-
-
-def invoke(accounts):
-    for account in accounts:
-        inschool = InSchool(account)
-        JWSESSION = inschool.getJwsession()
-        if JWSESSION:
-            account['JWSESSION'] = JWSESSION
-
-    return accounts
