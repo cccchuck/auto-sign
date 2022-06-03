@@ -18,10 +18,6 @@ username - 账号
 
 password - 密码
 
-id - 用户ID(自行抓包获得)
-
-signId - 同用户ID
-
 answers - 健康打卡答案(可在 `/health/save.json` 请求中找到，也可以自己填，example: ["0", "36.1", "1"], 其中"0"代表第一个问题选的第一个选项，"36.1"代表第二个问题填写的为"36.1"，"1"代表第三个问题选的第二个选项)
 
 latitude - 经度(在小程序里面找到定位，然后抓包获得)
@@ -54,7 +50,7 @@ git clone https://github.com/cccchuck/auto-sign.git
 
 cd auto-sign
 
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 4. 在同目录下配置 `conf.json` 文件
